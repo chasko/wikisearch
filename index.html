@@ -1,0 +1,57 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+			$("#search").focus();
+		});
+
+	function getArticles(keywords) {		
+		if (keywords === "") {
+			$("#articles").empty();
+			$("#articles").append("Please search for something.");
+			return;
+		}
+
+		var url = "http://en.wikipedia.org/w/api.php?format=json&action=query";
+			url += "&list=search";
+			url += "&srsearch=" + keywords;
+			url += "&srprop=link";
+			url += "&callback=?";
+			
+		$.getJSON(url).done(function(json) {
+			$("#articles").empty();
+			$("#articles").append("<p>Search results for <b>" + keywords + "</b>:</p>");
+						
+			if (json.query.search.length === 0) {
+				$("#articles").append("<b>"+keywords+"</b> returned no results.");
+				return;
+			}
+			
+			$.each(json.query.search, function(i, article) {
+				var link = "http://en.wikipedia.org/wiki/" + article.title;
+				$("#articles").append("<a target=\"_blank\" href=\"" + link + "\">" + article.title + "</a><br>");
+			});
+		});
+	}
+</script>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Wikipedia Search</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Let's Search Wikipedia!</h1>
+		
+			<form class="form-inline" onSubmit="getArticles(document.getElementById('search').value); return false;">
+				<div class="col-lg-6">
+				<input class="form-control input-medium" type="text" placeholder="Type what you want to search here..." id="search">
+				</div>
+				<input type="submit" value="Search!" class="btn btn-primary btn-medium">
+			</form>
+			<br>
+			<div id="articles"></div>
+		</div>
+	</body>
+</html>
